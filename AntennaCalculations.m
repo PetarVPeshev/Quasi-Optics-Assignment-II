@@ -81,16 +81,17 @@ zlim([-40 0]);
 %% Calculate Uniform Aperture Current Distribution Fourier Transform (FT)
 Jun = circFTCurrent(k, J0, TH, rD / 2, p);
 plotAiryCurrent(Jun, TH);
+ylim([-100 0]);
 
 %% Calculate Electric Far-Field of Uniform Aperture
 Eun = calculateEFarfield( ej_SGF,  Jun, k, R, TH, PH, kz );
 plotFarfield(Eun, TH, PH, N);
 caxis([-40, 0]);
-view(-45, 20);
+view(-25, 50);
 zlim([-40 0]);
 
 %% Calculate Antenna Efficiencies
 [ Te, Se, Ae ] = calculateREfficiency( E, Ef, R, TH, PH, Z, k, rD, rf );
 
 %% Calculate Maximum Possible Directivity, Directivity, and Gain
-[ Dm, D, G ] = calculateRParameters( D, wlen, Te, Ae );
+[ Dm, D, G ] = calculateRParameters( rD, wlen, Te, Ae );
