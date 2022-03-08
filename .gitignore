@@ -1,0 +1,11 @@
+# ignore all asv files
+*.asv
+# ignore all figure files
+*.fig
+*.eps
+*.jpg
+*.tif
+# ignore test files
+FarfieldOfFeed_t.m
+cart2sphereV_t.m
+farfield_t.m
