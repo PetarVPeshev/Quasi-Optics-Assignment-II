@@ -1,4 +1,4 @@
-function [ ej_SGF ] = EJ_SGF( er, k, kx, ky )
+function [ ej_SGF ] = calculateEJ_SGF( er, k, kx, ky )
 %EJ_SGF This function computes the full Spectral Green's Function (SGF)
 %   The function takes the relative permittivity of the medium, the
 %   magnitude of the wave number, and meshgrid of the x and y-components of
