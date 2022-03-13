@@ -20,7 +20,7 @@ function [ Acar ] = convertSphToCar( A, TH, PH )
     TM = permute(TM, [3 4 1 2]);
     A = permute(A, [3 4 1 2]);
     %% Convert to Spherical Coordinates
-    Asph = pagemtimes(TM, A);
+    Acar = pagemtimes(TM, A);
     %% Reshape Matrix
-    Asph = permute(Asph, [3 4 1 2]);
+    Acar = permute(Acar, [3 4 1 2]);
 end

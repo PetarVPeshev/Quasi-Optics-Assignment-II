@@ -1,37 +1,45 @@
-function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, R, TH, PH, Z, k, D, f )
+function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, THi, Z, k, D, f )
 %calculateREfficiency This function calculates the taper, spill-over, and
 %aperture efficiency of parabolic antenna
 %   Detailed explanation goes here
 %   Note: fix in-line documentation
-    %% Calculate Maximum Elevation Angle
-    fsh = f / D;
-    th0 = 2 * acot( 4 * fsh );
-    %% Calculate Elevation Angles on Reflector
-    THe = TH - pi / 2;
-    THe( abs( TH - pi / 2 ) > th0 ) = 0;
-    %% Convert Electric Field to Cartesian Coordinates
-    RHO = R .* sin(TH);
-    drho = RHO(1, 2) - RHO(1, 1);
+    %% Calculate Step Sizes
+    dth = TH(1, 2) - TH(1, 1);
     dph = PH(2, 1) - PH(1, 1);
-    E = convertSphToCyl(E, TH);
+    drho = RHO(1, 2) - RHO(1, 1);
     %% Calculate Far-Field Magnitude
+    % Electric far-field of feed in 0 to Theta max region
     Ef = Ef * R * exp(-1j * k * f) / ( f * exp(-1j * k * R) );
     Eft = abs( Ef(:, :, 1) ).^2 + abs( Ef(:, :, 2) ).^2 + ...
           abs( Ef(:, :, 3) ).^2;
+    % Electric far-field of feed in 0 to 90 Degrees region
+    Efi = Efi * R * exp(-1j * k * f) / (f * exp(-1j * k * R));
+    Efti = abs( Efi(:, :, 1) ).^2 + abs( Efi(:, :, 2) ).^2 + ...
+          abs( Efi(:, :, 3) ).^2;
+    % Electric far-field of antenna
     Et = abs( E(:, :, 1) ).^2 + abs( E(:, :, 2) ).^2 + ...
          abs( E(:, :, 3) ).^2;
     %% Calculate Radiation Intensity of Feed Far-Field
-    Uf = Eft * (f .^ 2) / (2 * Z);
-    %% Calculate Spillover Efficiency
-    Se = sum( sum( Uf .* sin(THe) ) ) / ...
-         sum( sum( Uf .* sin(TH - pi / 2) ) );
+    Uf = Eft * 4 * (f .^ 2) / (2 * Z);
+    Ufi = Efti * 4 * (f .^ 2) / (2 * Z);
+    %% Remove Singularities
+    Ufi( isnan(Ufi) ) = 0;
+    %% Calculate Radiated Power of Feed
+    Pf = sum( sum( Uf .* sin(TH) ) ) * dth * dph;
+    Pfi = sum( sum( Ufi .* sin(THi) ) ) * dth * dph;
+    %% Calculate Spill-Over Efficiency
+    Se = Pf / Pfi;
+    %% Calculate Effective Antenna Area
+    Eam = ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2 + ...
+          ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2 + ...
+          ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2;
+    Ea = sum( sum( Et .* RHO ) ) * drho * dph;
+    Aeff = Eam / Ea;
     %% Calculate Taper Efficiency
-    Aeff = ( abs( sum( sum( E(:, :, 1) .* RHO ) ) * drho * dph + ...
-           sum( sum( E(:, :, 2) .* RHO ) ) * drho * dph + ...
-           sum( sum( E(:, :, 3) .* RHO ) ) * drho * dph ) .^2 ) / ...
-           ( sum( sum( Et .* RHO ) ) * drho * dph );
     A = pi * (D / 2)^2;
     Te = Aeff / A;
-    %% Calculate Aperture Efficiency
-    Ae = Se * Te;
+    %% Calculate Aperture Efficiency and Convert to Percentage
+    Ae = Se * Te * 100;
+    Se = Se * 100;
+    Te = Te * 100;
 end

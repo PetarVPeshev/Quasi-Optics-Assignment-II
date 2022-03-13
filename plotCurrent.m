@@ -1,4 +1,4 @@
-function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH )
+function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH, compText )
 %plotCurrent This function plots the current distribution in cartesian
 %coordinates
 %   Detailed explanation goes here
@@ -29,7 +29,7 @@ function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH )
     view(0, 90);
     xlabel('X');
     ylabel('Y');
-    zlabel('|J_{x}| [dB]');
+    zlabel(['|' compText '_{x}| [dB]']);
     zlim([-40 0]);
     %% Plot 2D in XY Coordinates
     figSurY = figure();
@@ -43,6 +43,6 @@ function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH )
     view(0, 90);
     xlabel('X');
     ylabel('Y');
-    zlabel('|J_{y}| [dB]');
+    zlabel(['|' compText '_{y}| [dB]']);
     zlim([-40 0]);
 end

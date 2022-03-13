@@ -1,10 +1,13 @@
-function [ figSur ] = plotFarfield( F, TH, PH, N )
+function [ figSur ] = plotFarfield( F, TH, PH )
 %plotFarfield This function plots the far-farfield in UV representation
 %   Detailed explanation goes here
 %   Note: fix in-line documentation
+    %% Extract Dimensions of Theta and Phi
+    Nth = size(TH, 2);
+    Nph = size(PH, 1);
     %% Interpolate Data for Smoother Surface
-    th_inter = linspace(eps, pi, N * 5);
-    ph_inter = linspace(eps, 2 * pi, N * 5);
+    th_inter = linspace(eps, pi, Nth * 5);
+    ph_inter = linspace(eps, 2 * pi, Nph * 5);
     [ TH_inter, PH_inter ] = meshgrid(th_inter, ph_inter);
     Fr_inter = interp2(TH, PH, F(:, :, 1), TH_inter, PH_inter, 'spline');
     Fth_inter = interp2(TH, PH, F(:, :, 2), TH_inter, PH_inter, 'spline');

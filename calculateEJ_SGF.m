@@ -21,11 +21,11 @@ function [ ej_SGF ] = calculateEJ_SGF( er, k, kx, ky )
     G = [(k^2 - kx.^2) (-kx .* ky) (-kx .* kz);
          (-ky .* kx) (k^2 - ky.^2) (-ky .* kz);
          (-kz .* kx) (-kz .* ky) (k^2 - kz.^2)];
-    ej_SGF = -Z ./ (2 * k .* kz) .* ones(kx_l, ky_l, 3, 3);
+    ej_SGF = -Z ./ (2 * k .* kz) .* ones(ky_l, kx_l, 3, 3);
     for i = 1:3
         for n = 1:3
-            ej_SGF(:, :, i, n) = ej_SGF(:, :, i, n) .* G(((i-1)*kx_l + 1) : (i*kx_l), ...
-                                                         ((n-1)*ky_l + 1) : (n*ky_l));
+            ej_SGF(:, :, i, n) = ej_SGF(:, :, i, n) .* G(((i-1)*ky_l + 1) : (i*ky_l), ...
+                                                         ((n-1)*kx_l + 1) : (n*kx_l));
         end
     end
 end

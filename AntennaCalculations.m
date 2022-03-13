@@ -52,12 +52,12 @@ Ef = calculateEFarfield( ej_SGF_f, Jf, k, R, TH, kzf );
 
 %% Convert to Spherical Coordinates
 Ef = convertCarToSph( Ef, TH, PH );
-plotFarfield( Ef, TH, PH, N );
+plotFarfield( Ef, TH, PH );
 xlim([-0.25 0.25]);
 ylim([-0.25 0.25]);
 xticks(( -0.25 : 0.05 : 0.25 ));
 yticks(( -0.25 : 0.05 : 0.25 ));
-plotFarfield( Ef, TH, PH, N );
+plotFarfield( Ef, TH, PH );
 view(-130, 30);
 xlim([-0.25 0.25]);
 ylim([-0.25 0.25]);
@@ -66,16 +66,22 @@ yticks(( -0.25 : 0.05 : 0.25 ));
 
 %% Rho and Phi-Components of Cylindrical Coordinates
 rho = linspace(eps, rD / 2, N);
-[RHO, PHI] = meshgrid(rho, ph);
+[ RHO, PHP ] = meshgrid(rho, ph);
 THP = 2 * atan( RHO / (2 * rf) );
+rhoi = eps : ( rho(2) - rho(1) ) : ( 2 * rf * tan( pi / 4 ) );
+[ RHOi, PHPi ] = meshgrid(rhoi, ph);
+THPi = 2 * atan( RHOi / (2 * rf) );
 
 %% Calculate FT of Feed Current Distribution in New Coordinates
 Jff = circFTCurrent( k, J0, THP, af, p );
 
 %% x, y, and z-Components of Wave Number in New Coordinates
-KX = k * sin(THP) .* cos(PHI);
-KY = k * sin(THP) .* sin(PHI);
+KX = k * sin(THP) .* cos(PHP);
+KY = k * sin(THP) .* sin(PHP);
 kz = -1j * sqrt( -(k^2 - KX.^2 - KY.^2) );
+KXi = k * sin(THPi) .* cos(PHPi);
+KYi = k * sin(THPi) .* sin(PHPi);
+kzi = -1j * sqrt( -(k^2 - KXi.^2 - KYi.^2) );
 
 %% Calculate New Spectral Green's Function (SGF) in New Coordinates
 ej_SGF = calculateEJ_SGF( er, k, KX, KY );
@@ -83,43 +89,53 @@ plotSGF( ej_SGF, k, KX, 'EJ' );
 
 %% Calculate Electric Far-Field of Feed in New Coordinates
 Eff = calculateEFarfield( ej_SGF, Jff, k, R, THP, kz );
-Eff = convertCarToSph( Eff, THP, PHI );
-plotFarfield( Eff, TH, PH, N );
-xlim([-0.8 0.8]);
-ylim([-0.8 0.8]);
+% Eff = convertCarToSph( Eff, THP, PHP ); % Spherical
+% Eff = convertCarToCyl( Eff, PHP ); % Cylindrical
+% plotFarfield( Eff, THP, PH );
+% xlim([-0.8 0.8]);
+% ylim([-0.8 0.8]);
 
 %% Calculate Equivalent Aperture Current Distribution
-[ J, M ] = calculatePACurrent( Eff, Z, k, R, THP, PHI, rf );
-plotCurrent(M, RHO, PHI);
-plotCurrent(J, RHO, PHI);
+[ J, M ] = calculatePACurrent( Eff, Z, k, R, THP, rf );
+plotCurrent(M, RHO, PHP, 'M');
+plotCurrent(J, RHO, PHP, 'J');
+% J = convertCylToCar( J, PHP );
 
 %% Calculate Current Distribution Fourier Transform (FT)
 tic
-Jft = calculateCylFTCurrent( J, KX, KY, RHO, PHI );
+Jft = calculateCylFTCurrent( J, KX, KY, RHO, PHP );
 toc
 
 %% Calculate Electric Far-Field
-% Jft = convertCylToCar( Jft, PH );
+% Jft = convertCylToCar( Jft, PHP );
 E = calculateEFarfield( ej_SGF, Jft, k, R, THP, kz );
-plotFarfield(E, THP, PHI, N);
+% E = convertCarToSph(E, THP, PHP);
+plotCarFarfield(E, RHO, PHP);
 caxis([-40, 0]);
 view(-45, 20);
 zlim([-40 0]);
 
 %% Calculate Uniform Aperture Current Distribution Fourier Transform (FT)
 Jun = circFTCurrent(k, J0, THP, rD / 2, p);
-plotAiryCurrent(Jun, THP);
-ylim([-100 0]);
+% plotAiryCurrent(Jun, THP);
+% ylim([-100 0]);
 
 %% Calculate Electric Far-Field of Uniform Aperture
-Eun = calculateEFarfield( ej_SGF, Jun, k, R, THP, PHI, kz );
-plotFarfield(Eun, THP, PHI, N);
+Eun = calculateEFarfield( ej_SGF, Jun, k, R, THP, kz );
+% Eun = convertCarToSph(Eun, THP, PHP);
+plotCarFarfield(Eun, RHO, PHP);
 caxis([-40, 0]);
 view(-25, 50);
 zlim([-40 0]);
 
+%% Calculate Electric Far-Field of Feed in 0 to 90 Degrees
+Jfi = circFTCurrent( k, J0, THPi, af, p );
+ej_SGFi = calculateEJ_SGF( er, k, KXi, KYi );
+Efi = calculateEFarfield( ej_SGFi, Jfi, k, R, THPi, kzi );
+
 %% Calculate Antenna Efficiencies
-[ Te, Se, Ae ] = calculateREfficiency( E, Ef, R, TH, PH, Z, k, rD, rf );
+[ Te, Se, Ae ] = calculateREfficiency( E, Eff, Efi, R, THP, PHP, RHO, ...
+                                       THPi, Z, k, rD, rf );
 
 %% Calculate Maximum Possible Directivity, Directivity, and Gain
 [ Dm, D, G ] = calculateRParameters( rD, wlen, Te, Ae );
