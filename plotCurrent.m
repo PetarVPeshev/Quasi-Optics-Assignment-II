@@ -30,7 +30,8 @@ function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH, compText )
     xlabel('X');
     ylabel('Y');
     zlabel(['|' compText '_{x}| [dB]']);
-    zlim([-40 0]);
+    zlim([-200 0]);
+    title([compText '_{x}']);
     %% Plot 2D in XY Coordinates
     figSurY = figure();
     surface( X, Y, 20 * log10( abs( J_inter(:, :, 2) ) ) - ...
@@ -44,5 +45,6 @@ function [ figSurX, figSurY ] = plotCurrent( J, RHO, PH, compText )
     xlabel('X');
     ylabel('Y');
     zlabel(['|' compText '_{y}| [dB]']);
-    zlim([-40 0]);
+    zlim([-200 0]);
+    title([compText '_{y}']);
 end

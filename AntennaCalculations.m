@@ -97,9 +97,9 @@ Eff = calculateEFarfield( ej_SGF, Jff, k, R, THP, kz );
 
 %% Calculate Equivalent Aperture Current Distribution
 [ J, M ] = calculatePACurrent( Eff, Z, k, R, THP, rf );
+% J = convertCylToCar( J, PHP );
 plotCurrent(M, RHO, PHP, 'M');
 plotCurrent(J, RHO, PHP, 'J');
-% J = convertCylToCar( J, PHP );
 
 %% Calculate Current Distribution Fourier Transform (FT)
 tic
@@ -135,7 +135,7 @@ Efi = calculateEFarfield( ej_SGFi, Jfi, k, R, THPi, kzi );
 
 %% Calculate Antenna Efficiencies
 [ Te, Se, Ae ] = calculateREfficiency( E, Eff, Efi, R, THP, PHP, RHO, ...
-                                       THPi, Z, k, rD, rf );
+                                       THPi, PHPi, Z, k, rD, rf );
 
 %% Calculate Maximum Possible Directivity, Directivity, and Gain
 [ Dm, D, G ] = calculateRParameters( rD, wlen, Te, Ae );

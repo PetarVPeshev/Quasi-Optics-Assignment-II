@@ -1,4 +1,4 @@
-function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, THi, Z, k, D, f )
+function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, THi, PHi, Z, k, D, f )
 %calculateREfficiency This function calculates the taper, spill-over, and
 %aperture efficiency of parabolic antenna
 %   Detailed explanation goes here
@@ -10,12 +10,14 @@ function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, THi,
     %% Calculate Far-Field Magnitude
     % Electric far-field of feed in 0 to Theta max region
     Ef = Ef * R * exp(-1j * k * f) / ( f * exp(-1j * k * R) );
-    Eft = abs( Ef(:, :, 1) ).^2 + abs( Ef(:, :, 2) ).^2 + ...
-          abs( Ef(:, :, 3) ).^2;
+    Efsph = convertCarToSph( Ef, TH, PH );
+    Eft = abs( Efsph(:, :, 1) ).^2 + abs( Efsph(:, :, 2) ).^2 + ...
+          abs( Efsph(:, :, 3) ).^2;
     % Electric far-field of feed in 0 to 90 Degrees region
     Efi = Efi * R * exp(-1j * k * f) / (f * exp(-1j * k * R));
-    Efti = abs( Efi(:, :, 1) ).^2 + abs( Efi(:, :, 2) ).^2 + ...
-          abs( Efi(:, :, 3) ).^2;
+    Efisph = convertCarToSph( Efi, THi, PHi );
+    Efti = abs( Efisph(:, :, 1) ).^2 + abs( Efisph(:, :, 2) ).^2 + ...
+           abs( Efisph(:, :, 3) ).^2;
     % Electric far-field of antenna
     Et = abs( E(:, :, 1) ).^2 + abs( E(:, :, 2) ).^2 + ...
          abs( E(:, :, 3) ).^2;
@@ -30,9 +32,9 @@ function [ Te, Se, Ae ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, THi,
     %% Calculate Spill-Over Efficiency
     Se = Pf / Pfi;
     %% Calculate Effective Antenna Area
-    Eam = ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2 + ...
-          ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2 + ...
-          ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) .^2;
+    Eam = ( ( sum( sum( abs( E(:, :, 1) ) .* RHO ) ) * drho * dph ) + ...
+               ( sum( sum( abs( E(:, :, 2) ) .* RHO ) ) * drho * dph ) + ...
+               ( sum( sum( abs( E(:, :, 3) ) .* RHO ) ) * drho * dph ) ) .^ 2;
     Ea = sum( sum( Et .* RHO ) ) * drho * dph;
     Aeff = Eam / Ea;
     %% Calculate Taper Efficiency
