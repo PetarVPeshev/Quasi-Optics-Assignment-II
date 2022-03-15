@@ -4,7 +4,7 @@ clc;
 
 %% Constants and Parameters
 % Indecies
-N = 100;                        % Number of sample points
+N = 500;                        % Number of sample points
 % Field Parameters
 f = 100 * 1e9;                  % Source frequency [Hz]
 R = 1;                          % Radial distance [m]
@@ -13,7 +13,7 @@ Df2wlen = 4;                    % Feed diameter to wavelength
 J0 = 1;                         % Amplitude of feed current distribution
 p = [0 1 0];                    % Polarization of feed current distribution
 rf = 1;                         % Antenna focal length [m]
-rf2rD = linspace(0.5, 5, 20);   % Antenna focal length to diameter
+rf2rD = linspace(0.5, 5, 40);   % Antenna focal length to diameter
 % Medium
 er = 1;                         % Relative permittivity
 c = physconst('LightSpeed');    % Speed of light [m/s]
@@ -25,7 +25,7 @@ wlen = c / f;                   % Wavelength [m]
 k = 2*pi / wlen;                % Magnitude of wave number [rad/m]
 Z = sqrt( u0 / (e0 * er) );     % Wave impedance [Ohm]
 af = Df2wlen * wlen / 2;        % Radius of feed [m]
-rD = rf ./ rf2rD;            % Diameter of reflector [m]
+rD = rf ./ rf2rD;               % Diameter of reflector [m]
 
 %% Phi-Components of Cylindrical Coordinates
 ph = linspace(eps, 2 * pi, N);
@@ -60,16 +60,6 @@ for i = 1:size(rf2rD, 2)
     Ef = calculateEFarfield( ej_SGF, Jf, k, R, TH, kz );
     Ef( isnan(Ef) ) = 0;
     
-    %% Calculate Equivalent Aperture Current Distribution
-    [ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, PH, rf );
-    
-    %% Calculate Current Distribution Fourier Transform (FT)
-    Jft = calculateCylFTCurrent( J, KX, KY, RHO, PH );
-    
-    %% Calculate Electric Far-Field
-    E = calculateEFarfield( ej_SGF, Jft, k, R, TH, kz );
-    E( isnan(E) ) = 0;
-    
     %% Rho and Phi-Components of Cylindrical Coordinates in 0 to 90 Degrees
     rhoi = eps : drho : ( 2 * rf * tan( pi / 4 ) );
     [ RHOi, PHi ] = meshgrid(rhoi, ph);
@@ -87,35 +77,33 @@ for i = 1:size(rf2rD, 2)
     
     %% Calculate Antenna Efficiencies
     Se(i) = calculateSOEfficiency(Ef, Efi, Z, k, R, TH, PH, THi, PHi, rf);
-    Te(i) = calculateTEfficiency(E, PH, RHO, rD(i));
+    Te(i) = calculateTEfficiency(Ef, k, R, TH, PH, RHO, rD(i), rf);
     Ae(i) = Te(i) * Se(i) / 100;
-%     [ Te(i), Se(i), Ae(i) ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, ...
-%                                            THi, Z, k, rD(i), rf );
     
     %% Calculate Maximum Possible Directivity, Directivity, and Gain
-    [ Dm(i), D(i), G(i) ] = calculateRParameters( rD(i), wlen, Te(i), Ae(i) );
+    [ Dm(i), D(i), G(i) ] = calculateRParameters( rD(i), wlen, ...
+                                                Te(i) / 100, Ae(i) / 100 );
 end
 
 %% Plots
 % Efficiencies
 figure();
-plot(rf2rD, Te, 'LineWidth', 3.0);
+plot(rf2rD, Te / 100, 'LineWidth', 3.0);
 hold on;
-plot(rf2rD, Se, 'LineWidth', 3.0);
+plot(rf2rD, Se / 100, 'LineWidth', 3.0);
 hold on;
-plot(rf2rD, Ae, 'LineWidth', 3.0);
+plot(rf2rD, Ae / 100, 'LineWidth', 3.0);
 grid on;
-xlabel('Focal length to diameter ratio [f / D]');
-ylabel('%');
-legend('\eta_{T}', '\eta_{S}', '\eta_{A}');
+xlabel('f / D');
+legend('\eta_{TA}', '\eta_{SO}', '\eta_{AP}');
 % Parameters
 figure();
-plot(rf2rD, 20 * log10(Dm), 'LineWidth', 3.0);
+plot(rf2rD, 10 * log10( Dm ), 'LineWidth', 3.0);
 hold on;
-plot(rf2rD, 20 * log10(D), 'LineWidth', 3.0);
+plot(rf2rD, 10 * log10( D ), 'LineWidth', 3.0);
 hold on;
-plot(rf2rD, 20 * log10(G), 'LineWidth', 3.0);
+plot(rf2rD, 10 * log10( G ), 'LineWidth', 3.0);
 grid on;
-xlabel('Focal length to diameter ratio [f / D]');
+xlabel('f / D');
 ylabel('[dB]');
 legend('D_{max}','D','G');

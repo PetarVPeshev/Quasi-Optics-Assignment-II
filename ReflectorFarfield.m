@@ -51,7 +51,7 @@ Ef = calculateEFarfield( ej_SGF, Jf, k, R, TH, kz );
 Ef( isnan(Ef) ) = 0;
 
 %% Calculate Equivalent Aperture Current Distribution
-[ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, rf );
+[ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, PH, rf );
 
 %% Calculate Current Distribution Fourier Transform (FT)
 Jft = calculateCylFTCurrent( J, KX, KY, RHO, PH );
@@ -89,7 +89,7 @@ Euth( size(E, 2) + 1 : end ) = sqrt( abs( Eun(51, :, 1) ).^2 + ...
                        abs( Eun(51, :, 2) ).^2 + abs( Eun(51, :, 3) ).^2 );
 Euth( 1 : size(E, 2) ) = rot90(sqrt( abs( Eun(1, :, 1) ).^2 + ...
                      abs( Eun(1, :, 2) ).^2 + abs( Eun(1, :, 3) ).^2 ), 2);
-% Plot
+% Plot (normalized to uniform current field maximum)
 figure();
 plot(th * 180 / pi, 20 * log10( Eth ) - max( 20 * log10( Euth ) ), ...
      'LineWidth', 3.0);
@@ -98,7 +98,22 @@ plot(th * 180 / pi, 20 * log10( Euth ) - max( 20 * log10( Euth ) ), ...
      '--', 'LineWidth', 3.0);
 grid on;
 xlabel('\theta [deg]');
-ylabel('|E| [dB] at XZ Plane');
+ylabel('[dB]');
 xlim([min(th * 180 / pi) max(th * 180 / pi)]);
 ylim([-60 0]);
-legend('|E|', '|E_{JU}|');
+legend('|E|', '|E_{un}|');
+title('XZ Plane');
+% Plot (normalized to own maximum)
+figure();
+plot(th * 180 / pi, 20 * log10( Eth ) - max( 20 * log10( Eth ) ), ...
+     'LineWidth', 3.0);
+hold on;
+plot(th * 180 / pi, 20 * log10( Euth ) - max( 20 * log10( Euth ) ), ...
+     '--', 'LineWidth', 3.0);
+grid on;
+xlabel('\theta [deg]');
+ylabel('[dB]');
+xlim([min(th * 180 / pi) max(th * 180 / pi)]);
+ylim([-40 0]);
+legend('|E|', '|E_{un}|');
+title('XZ Plane');
