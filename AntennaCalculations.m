@@ -96,7 +96,7 @@ Eff = calculateEFarfield( ej_SGF, Jff, k, R, THP, kz );
 % ylim([-0.8 0.8]);
 
 %% Calculate Equivalent Aperture Current Distribution
-[ J, M ] = calculatePACurrent( Eff, Z, k, R, THP, rf );
+[ J, M ] = calculatePACurrent( Eff, Z, k, R, THP, PHP, rf );
 % J = convertCylToCar( J, PHP );
 plotCurrent(M, RHO, PHP, 'M');
 plotCurrent(J, RHO, PHP, 'J');
@@ -134,8 +134,9 @@ ej_SGFi = calculateEJ_SGF( er, k, KXi, KYi );
 Efi = calculateEFarfield( ej_SGFi, Jfi, k, R, THPi, kzi );
 
 %% Calculate Antenna Efficiencies
-[ Te, Se, Ae ] = calculateREfficiency( E, Eff, Efi, R, THP, PHP, RHO, ...
-                                       THPi, PHPi, Z, k, rD, rf );
+Se = calculateSOEfficiency(Eff, Efi, Z, k, R, THP, PHP, THPi, PHPi, rf);
+Te = calculateTEfficiency(Eff, k, R, THP, PHP, RHO, rD, rf);
+Ae = Se * Te / 100;
 
 %% Calculate Maximum Possible Directivity, Directivity, and Gain
 [ Dm, D, G ] = calculateRParameters( rD, wlen, Te, Ae );

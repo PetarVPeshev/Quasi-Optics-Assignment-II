@@ -61,7 +61,7 @@ for i = 1:size(rf2rD, 2)
     Ef( isnan(Ef) ) = 0;
     
     %% Calculate Equivalent Aperture Current Distribution
-    [ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, rf );
+    [ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, PH, rf );
     
     %% Calculate Current Distribution Fourier Transform (FT)
     Jft = calculateCylFTCurrent( J, KX, KY, RHO, PH );
@@ -86,8 +86,11 @@ for i = 1:size(rf2rD, 2)
     Efi = calculateEFarfield( ej_SGFi, Jfi, k, R, THi, kzi );
     
     %% Calculate Antenna Efficiencies
-    [ Te(i), Se(i), Ae(i) ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, ...
-                                           THi, Z, k, rD(i), rf );
+    Se(i) = calculateSOEfficiency(Ef, Efi, Z, k, R, TH, PH, THi, PHi, rf);
+    Te(i) = calculateTEfficiency(E, PH, RHO, rD(i));
+    Ae(i) = Te(i) * Se(i) / 100;
+%     [ Te(i), Se(i), Ae(i) ] = calculateREfficiency( E, Ef, Efi, R, TH, PH, RHO, ...
+%                                            THi, Z, k, rD(i), rf );
     
     %% Calculate Maximum Possible Directivity, Directivity, and Gain
     [ Dm(i), D(i), G(i) ] = calculateRParameters( rD(i), wlen, Te(i), Ae(i) );
