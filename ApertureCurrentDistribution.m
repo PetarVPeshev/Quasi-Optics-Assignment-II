@@ -4,7 +4,7 @@ clc;
 
 %% Constants and Parameters
 % Indecies
-N = 100;                        % Number of sample points
+N = 500;                        % Number of sample points
 % Field Parameters
 f = 100 * 1e9;                  % Source frequency [Hz]
 R = 1;                          % Radial distance [m]
@@ -51,6 +51,4 @@ Ef = calculateEFarfield( ej_SGF, Jf, k, R, TH, kz );
 
 %% Calculate Equivalent Aperture Current Distribution
 [ J, M ] = calculatePACurrent( Ef, Z, k, R, TH, PH, rf );
-% M = convertCylToCar( M, PH );
 plotCurrent(M, RHO, PH, 'M');
-plotCurrent(J, RHO, PH, 'J');
