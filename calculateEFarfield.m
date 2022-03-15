@@ -1,4 +1,4 @@
-function [ E ] = calculateEFarfield( ej_SGF, J, k, R, TH, PH, kz )
+function [ E ] = calculateEFarfield( ej_SGF, J, k, R, TH, kz )
 %calculateFarfield This function calculates the electric far-field of
 %certain current distribution and Spectral Green's Function
 %   Detailed explanation goes here
@@ -12,6 +12,4 @@ function [ E ] = calculateEFarfield( ej_SGF, J, k, R, TH, PH, kz )
                          J(:, :, n) * exp(-1j * k * R) / (2 * pi * R);
         end
     end
-    %% Convert to Spherical Coordinates
-    E = convertCarToSph( E, TH, PH );
 end
