@@ -26,5 +26,6 @@ function [ Te ] = calculateTEfficiency( E, k, R, TH, PH, RHO, D, f )
     %% Calculate Taper Efficiency
     A = pi * (D^2) / 4;
     Te = Aeff / A;
+    Te( Te > 1 ) = 1;
     Te = Te * 100;
 end
